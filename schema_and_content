@@ -1,0 +1,41 @@
+import sqlite3
+
+def print_schema_and_content(database_path, row_limit=10):
+    """Prints the schema and limited content of each table in the SQLite database.
+
+    Args:
+        database_path (str): Path to the SQLite database file.
+        row_limit (int): Maximum number of rows to display from each table.
+    """
+    conn = sqlite3.connect(database_path)
+    cursor = conn.cursor()
+    
+    # Fetch all table names
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    tables = cursor.fetchall()
+    
+    for table in tables:
+        table_name = table[0]
+        print(f"Table: {table_name}")
+        
+        # Print table schema
+        cursor.execute(f"PRAGMA table_info({table_name});")
+        columns = cursor.fetchall()
+        for col in columns:
+            print(f"  Column: {col[1]}, Type: {col[2]}")
+        
+        # Fetch and print limited content of each table
+        print("Contents (limited to first {0} rows):".format(row_limit))
+        cursor.execute(f"SELECT * FROM {table_name} LIMIT {row_limit};")
+        rows = cursor.fetchall()
+        for row in rows:
+            print(row)
+        
+        print("\n")  # Printing a newline for better separation between tables
+    
+    cursor.close()
+    conn.close()
+
+if __name__ == '__main__':
+    database_path = r'C:\Users\aoo210001\Desktop\walmart\Combining_walmart_shipping_data\shipment_database.db'
+    print_schema_and_content(database_path)
